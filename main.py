@@ -60,6 +60,6 @@ if __name__ == "__main__":
     logger.info("Iniciando o servidor Flask...")
 
 #permite que qualquer IP consiga aceder ao servidor
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
 
 

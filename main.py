@@ -24,7 +24,7 @@ logger.info("Inicializando a aplicação Flask.")
 
 # Configuração do banco de dados
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:admin123@localhost:1000/fortune_whell_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:admin123@mariadb:3306/dbname/fortune_whell_db'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

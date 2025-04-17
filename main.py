@@ -16,7 +16,6 @@ from routes.setup import Setup
 from routes.levantamento import Levantamento
 
 from sqlalchemy import text
-
 from config import SQLALCHEMY_DATABASE_URI
 
 # Inicialização do logger
@@ -26,10 +25,7 @@ logger = setup_logger()
 app = Flask(__name__)
 logger.info("Inicializando a aplicação Flask.")
 
-
-
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
-
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Inicializa o banco de dados
@@ -52,9 +48,17 @@ logger.info("Rotas registradas com sucesso.")
 
 print(app.url_map)
 
-# Ponto de entrada principal
-# ... tudo igual ...
+# ✅ Rota pingdb DEVE estar fora do bloco if
+@app.route("/pingdb")
+def ping_db():
+    try:
+        # Usa text() para executar SQL puro
+        result = db.session.execute(text("SELECT 1")).scalar()
+        return {"status": "sucesso", "resultado": result}, 200
+    except Exception as e:
+        return {"status": "erro", "mensagem": str(e)}, 500
 
+# Bloco principal (apenas executado localmente)
 if __name__ == "__main__":
     with app.app_context():
         try:
@@ -64,15 +68,3 @@ if __name__ == "__main__":
             logger.error(f"Erro ao criar tabelas no banco de dados: {str(e)}")
 
     logger.info("Flask app carregado (modo WSGI - não precisa de app.run)")
-
-
-    @app.route("/pingdb")
-    def ping_db():
-        try:
-            # Usa text() para executar SQL puro
-            result = db.session.execute(text("SELECT 1")).scalar()
-            return {"status": "sucesso", "resultado": result}, 200
-        except Exception as e:
-            return {"status": "erro", "mensagem": str(e)}, 500
-
-

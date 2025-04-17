@@ -15,6 +15,10 @@ from routes.login import Login
 from routes.setup import Setup
 from routes.levantamento import Levantamento
 
+from sqlalchemy import text
+
+from config import SQLALCHEMY_DATABASE_URI
+
 # Inicialização do logger
 logger = setup_logger()
 
@@ -22,9 +26,9 @@ logger = setup_logger()
 app = Flask(__name__)
 logger.info("Inicializando a aplicação Flask.")
 
-# Configuração do banco de dados
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:admin123@localhost:1000/fortune_whell_db'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -49,6 +53,8 @@ logger.info("Rotas registradas com sucesso.")
 print(app.url_map)
 
 # Ponto de entrada principal
+# ... tudo igual ...
+
 if __name__ == "__main__":
     with app.app_context():
         try:
@@ -57,9 +63,16 @@ if __name__ == "__main__":
         except Exception as e:
             logger.error(f"Erro ao criar tabelas no banco de dados: {str(e)}")
 
-    logger.info("Iniciando o servidor Flask...")
+    logger.info("Flask app carregado (modo WSGI - não precisa de app.run)")
 
-#permite que qualquer IP consiga aceder ao servidor
-    app.run(host="0.0.0.0", port=5000, debug=True)
+
+    @app.route("/pingdb")
+    def ping_db():
+        try:
+            # Usa text() para executar SQL puro
+            result = db.session.execute(text("SELECT 1")).scalar()
+            return {"status": "sucesso", "resultado": result}, 200
+        except Exception as e:
+            return {"status": "erro", "mensagem": str(e)}, 500
 
 

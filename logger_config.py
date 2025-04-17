@@ -7,13 +7,11 @@ def setup_logger():
 
     # Configuração básica
     logging.basicConfig(
-        level=logging.INFO,  # Nível de log (DEBUG, INFO, WARNING, ERROR)
+        level=logging.INFO,
         format=log_format,
         handlers=[
-            logging.FileHandler("app.log"),  # Grava os logs no ficheiro "app.log"
-            logging.StreamHandler()          # Exibe os logs no console
+            logging.FileHandler("app.log")  # Apenas ficheiro, sem consola
         ]
     )
 
-    # Retorna o logger configurado
     return logging.getLogger(__name__)

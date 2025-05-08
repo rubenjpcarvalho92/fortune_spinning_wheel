@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 resource_fields_maquina = {
     'numeroSerie': fields.String,
     'valorAposta': fields.Integer,
+    'apostadoParcialDinheiro': fields.Integer,
     'atribuidoTotal': fields.Float,
     'apostadoTotal': fields.Integer,
     'taxaGanhoDefinida': fields.Float,
@@ -34,6 +35,7 @@ resource_fields_maquina = {
 maquina_create_arg = reqparse.RequestParser()
 maquina_create_arg.add_argument("numeroSerie", type=str, help="Número de série inválido.", required=True)
 maquina_create_arg.add_argument("valorAposta", type=int, help="Valor da aposta inválido.", required=True)
+maquina_create_arg.add_argument("apostadoParcialDinheiro", type=int, help="Valor da aposta em dinheiro inválido.", required=True)
 maquina_create_arg.add_argument("atribuidoTotal", type=float, help="Valor total atribuído inválido.", required=True)
 maquina_create_arg.add_argument("apostadoTotal", type=float, help="Valor total apostado inválido.", required=True)
 maquina_create_arg.add_argument("taxaGanhoDefinida", type=float, help="Taxa de ganho definida inválida.", required=True)

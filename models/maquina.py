@@ -7,6 +7,7 @@ class MaquinaModel(db.Model):
 
     numeroSerie = db.Column(db.String(8), primary_key=True)  # Identificador único da máquina
     valorAposta = db.Column(db.Integer)
+    apostadoParcialDinheiro = db.Column(db.Integer)
     atribuidoTotal = db.Column(db.Float)
     apostadoTotal = db.Column(db.Integer)
     taxaGanhoDefinida = db.Column(db.Float)
@@ -30,7 +31,7 @@ class MaquinaModel(db.Model):
     talao = db.relationship("TalaoModel", backref="maquina", lazy=True)
 
     def __repr__(self):
-        return (f"<Maquina(numeroSerie={self.numeroSerie}, valorAposta={self.valorAposta}, "
+        return (f"<Maquina(numeroSerie={self.numeroSerie}, valorAposta={self.valorAposta}, apostadoParcialDinheiro={self.apostadoParcialDinheiro}, "
                 f"atribuidoTotal={self.atribuidoTotal}, apostadoTotal={self.apostadoTotal}, "
                 f"taxaGanhoDefinida={self.taxaGanhoDefinida}, taxaGanhoActual={self.taxaGanhoActual}, "
                 f"taxaGanhoParcial={self.taxaGanhoParcial}, apostadoParcial={self.apostadoParcial}, "

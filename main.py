@@ -68,3 +68,6 @@ if __name__ == "__main__":
             logger.error(f"Erro ao criar tabelas no banco de dados: {str(e)}")
 
     logger.info("Flask app carregado (modo WSGI - não precisa de app.run)")
+    
+application = app
+

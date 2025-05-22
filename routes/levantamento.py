@@ -13,6 +13,7 @@ resource_fields_levantamento = {
     'taxaGanhoParcial': fields.Float,
     'atribuidoParcial': fields.Float,
     'Maquinas_numeroSerie': fields.String,
+    'apostadoParcialDinheiro' : fields.Integer,
     'VD': fields.Integer,
     'PT': fields.Integer,
     'CI': fields.Integer,
@@ -33,6 +34,7 @@ levantamento_create_arg.add_argument("numeroSerie", type=str, required=True)
 levantamento_create_arg.add_argument("data", type=str, required=True)
 levantamento_create_arg.add_argument("apostadoParcial", type=int, required=True)
 levantamento_create_arg.add_argument("taxaGanhoParcial", type=float, required=True)
+levantamento_create_arg.add_argument("apostadoParcialDinheiro", type=int, required=True)
 levantamento_create_arg.add_argument("atribuidoParcial", type=float, required=True)
 levantamento_create_arg.add_argument("Maquinas_numeroSerie", type=str, required=True)
 levantamento_create_arg.add_argument("VD", type=int)
@@ -84,6 +86,7 @@ class Levantamento(Resource):
                 taxaGanhoParcial=args["taxaGanhoParcial"],
                 atribuidoParcial=args["atribuidoParcial"],
                 Maquinas_numeroSerie=args["Maquinas_numeroSerie"],
+                apostadoParcialDinheiro = ["apostadoParcialDinheiro"],
                 VD=args["VD"],
                 PT=args["PT"],
                 CI=args["CI"],

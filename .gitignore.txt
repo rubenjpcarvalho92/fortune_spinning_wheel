@@ -1,0 +1,39 @@
+# Arquivos Python compilados
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.py[cod]
+
+# Configuração local
+.env
+*.env
+
+# Diretórios temporários
+tmp/
+temp/
+.cache/
+*.log
+
+# VSCode e editores
+.vscode/
+*.code-workspace
+
+# Sistema Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Git
+*.orig
+
+# Arquivos de backup
+*~
+*.bak
+*.swp
+
+# Pasta do Git no cPanel
+.git/
+
+# Ficheiros de sistema cPanel
+.htaccess

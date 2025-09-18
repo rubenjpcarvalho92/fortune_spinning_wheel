@@ -2,6 +2,8 @@ from models import db
 from sqlalchemy import CheckConstraint
 from datetime import datetime
 
+print("### LevantamentoModel carregado com apostadoParcialDinheiro")
+
 class LevantamentoModel(db.Model):
     __tablename__ = 'levantamentos'
 

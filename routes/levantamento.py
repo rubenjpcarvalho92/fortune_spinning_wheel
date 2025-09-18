@@ -56,58 +56,52 @@ class Levantamento(Resource):
     def get(self, numeroSerie):
         logger.info(f"Buscando levantamento com número de série: {numeroSerie}")
         try:
-            levantamento = LevantamentoModel.query.filter_by(numeroSerie=numeroSerie).first()
-            if not levantamento:
-                logger.warning(f"Levantamento com número de série {numeroSerie} não encontrado.")
+            lev = LevantamentoModel.query.filter_by(numeroSerie=numeroSerie).first()
+            if not lev:
                 abort(404, message="Levantamento não encontrado.")
-            return levantamento
+            return lev
         except Exception as e:
-            logger.error(f"Erro ao buscar levantamento: {str(e)}")
+            logger.exception("Erro ao buscar levantamento")
             abort(500, message="Erro interno ao buscar o levantamento.")
 
     @marshal_with(resource_fields_levantamento)
     def post(self):
         args = levantamento_create_arg.parse_args()
+        _validate_non_negative_counts(args)
+
         numeroSerie = args["numeroSerie"]
 
         try:
-            logger.info(f"Tentando criar levantamento com os dados: {args}")
-            if LevantamentoModel.query.filter_by(numeroSerie=numeroSerie).first():
+            logger.info(f"Tentando criar levantamento: {args}")
+
+            # idempotência simples: se já existir, devolve 409 ou o próprio registo
+            existente = LevantamentoModel.query.filter_by(numeroSerie=numeroSerie).first()
+            if existente:
                 abort(409, message=f"Levantamento com número de série {numeroSerie} já existe.")
 
             maquina = MaquinaModel.query.filter_by(numeroSerie=args["Maquinas_numeroSerie"]).first()
             if not maquina:
                 abort(404, message=f"Máquina com número de série {args['Maquinas_numeroSerie']} não encontrada.")
 
-            novo_levantamento = LevantamentoModel(
+            novo = LevantamentoModel(
                 numeroSerie=numeroSerie,
                 data=args["data"],
                 apostadoParcial=args["apostadoParcial"],
                 taxaGanhoParcial=args["taxaGanhoParcial"],
                 atribuidoParcial=args["atribuidoParcial"],
                 Maquinas_numeroSerie=args["Maquinas_numeroSerie"],
-                apostadoParcialDinheiro = ["apostadoParcialDinheiro"],
-                VD=args["VD"],
-                PT=args["PT"],
-                CI=args["CI"],
-                AM=args["AM"],
-                GM=args["GM"],
-                VR=args["VR"],
-                LR=args["LR"],
-                PC=args["PC"],
-                RX=args["RX"],
-                AZ=args["AZ"],
-                BB=args["BB"],
-                EE=args["EE"],
-                ARC=args["ARC"]
+                apostadoParcialDinheiro=args["apostadoParcialDinheiro"],  # <<< BUG corrigido
+                VD=args["VD"], PT=args["PT"], CI=args["CI"], AM=args["AM"],
+                GM=args["GM"], VR=args["VR"], LR=args["LR"], PC=args["PC"],
+                RX=args["RX"], AZ=args["AZ"], BB=args["BB"], EE=args["EE"], ARC=args["ARC"]
             )
 
-            db.session.add(novo_levantamento)
+            db.session.add(novo)
             db.session.commit()
-            logger.info(f"Levantamento criado com sucesso: {novo_levantamento}")
-            return novo_levantamento, 201
+            logger.info(f"Levantamento criado: {novo}")
+            return novo, 201
 
         except Exception as e:
             db.session.rollback()
-            logger.error(f"Erro ao criar levantamento: {str(e)}")
+            logger.exception("Erro ao criar levantamento")
             abort(500, message="Erro interno ao criar o levantamento.")

@@ -9,7 +9,7 @@ class LevantamentoModel(db.Model):
     numeroSerie = db.Column(db.String(64), primary_key=True)  # <— 64 para folga
 
     # usa DateTime; guarda sempre em UTC
-    data = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    data = db.Column(db.String(46), nullable=False) 
 
     # métricas parciais (ajusta tipos ao teu domínio; sugiro cêntimos como int)
     apostadoParcial        = db.Column(db.Integer, nullable=False, default=0)

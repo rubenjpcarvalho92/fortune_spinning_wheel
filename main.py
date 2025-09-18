@@ -24,6 +24,36 @@ logger = setup_logger()
 
 # Inicialização da aplicação Flask
 app = Flask(__name__)
+
+# --- DEBUG: endpoint para inspecionar o modelo carregado ---
+from flask import jsonify
+import inspect, sys
+
+try:
+    from models import levantamento as levantamento_module
+    from models.levantamento import LevantamentoModel
+except Exception as e:
+    @app.get("/_debug_model")
+    def _debug_model_fail():
+        return jsonify({
+            "import_error": str(e),
+            "sys_path": sys.path[:10],
+        }), 500
+else:
+    @app.get("/_debug_model")
+    def _debug_model():
+        cols = [c.name for c in LevantamentoModel.__table__.columns]
+        return jsonify({
+            "python": sys.version,
+            "models_module_file": inspect.getfile(levantamento_module),
+            "levantamento_model_file": inspect.getfile(LevantamentoModel),
+            "columns": cols,
+            "has_apostadoParcialDinheiro": hasattr(LevantamentoModel, "apostadoParcialDinheiro"),
+            "sys_path": sys.path[:10],
+        }), 200
+# --- /DEBUG ---
+
+
 logger.info("Inicializando a aplicação Flask.")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI

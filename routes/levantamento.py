@@ -3,7 +3,7 @@ from flask_restful import Resource, reqparse, marshal_with, fields, abort
 from models.levantamento import LevantamentoModel
 from models.maquina import MaquinaModel
 from models import db
-import logging
+import logging, inspect
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +51,15 @@ class Levantamento(Resource):
 
     @marshal_with(resource_fields_levantamento)
     def get(self, numeroSerie):
+        # DEBUG extra no GET
+        try:
+            logger.info("### GET /levantamentos/%s", numeroSerie)
+            logger.info("### LevantamentoModel file: %s", inspect.getfile(LevantamentoModel))
+            logger.info("### LevantamentoModel cols: %s",
+                        [c.name for c in LevantamentoModel.__table__.columns])
+        except Exception:
+            logger.exception("### DEBUG: falhou a inspeção do modelo no GET")
+
         logger.info(f"Buscando levantamento {numeroSerie}")
         try:
             lev = LevantamentoModel.query.filter_by(numeroSerie=numeroSerie).first()
@@ -63,11 +72,25 @@ class Levantamento(Resource):
 
     # Não usar marshal_with aqui porque em erro devolvemos {"error":...}
     def post(self):
+        # DEBUG: prova de vida + origem do modelo + colunas
+        logger.info("### POST /levantamentos/ entrou")
+        try:
+            logger.info("### LevantamentoModel file: %s", inspect.getfile(LevantamentoModel))
+            logger.info("### LevantamentoModel cols: %s",
+                        [c.name for c in LevantamentoModel.__table__.columns])
+            if not hasattr(LevantamentoModel, "apostadoParcialDinheiro"):
+                logger.error("### Modelo SEM campo apostadoParcialDinheiro")
+                return {"error": "Modelo SEM campo apostadoParcialDinheiro"}, 500
+        except Exception:
+            logger.exception("### DEBUG: falhou a inspeção do modelo no POST")
+
         args = levantamento_create_arg.parse_args()
         _validate_non_negative_counts(args)
 
         numeroSerie = args["numeroSerie"]
         try:
+            logger.info("Tentando criar levantamento com os dados: %s", args)
+
             # idempotência
             if LevantamentoModel.query.filter_by(numeroSerie=numeroSerie).first():
                 abort_json(409, f"Levantamento {numeroSerie} já existe.")
@@ -94,22 +117,22 @@ class Levantamento(Resource):
             db.session.commit()
 
             # resposta 201 com JSON do objeto
-            return jsonify({
-                **novo.to_dict() if hasattr(novo, "to_dict") else {
-                    "numeroSerie": novo.numeroSerie,
-                    "data": novo.data,
-                    "apostadoParcial": novo.apostadoParcial,
-                    "taxaGanhoParcial": novo.taxaGanhoParcial,
-                    "atribuidoParcial": novo.atribuidoParcial,
-                    "Maquinas_numeroSerie": novo.Maquinas_numeroSerie,
-                    "apostadoParcialDinheiro": novo.apostadoParcialDinheiro,
-                    "VD": novo.VD, "PT": novo.PT, "CI": novo.CI, "AM": novo.AM,
-                    "GM": novo.GM, "VR": novo.VR, "LR": novo.LR, "PC": novo.PC,
-                    "RX": novo.RX, "AZ": novo.AZ, "BB": novo.BB, "EE": novo.EE, "ARC": novo.ARC
-                }
-            }), 201
+            body = (novo.to_dict() if hasattr(novo, "to_dict") else {
+                "numeroSerie": novo.numeroSerie,
+                "data": novo.data,
+                "apostadoParcial": novo.apostadoParcial,
+                "taxaGanhoParcial": novo.taxaGanhoParcial,
+                "atribuidoParcial": novo.atribuidoParcial,
+                "Maquinas_numeroSerie": novo.Maquinas_numeroSerie,
+                "apostadoParcialDinheiro": novo.apostadoParcialDinheiro,
+                "VD": novo.VD, "PT": novo.PT, "CI": novo.CI, "AM": novo.AM,
+                "GM": novo.GM, "VR": novo.VR, "LR": novo.LR, "PC": novo.PC,
+                "RX": novo.RX, "AZ": novo.AZ, "BB": novo.BB, "EE": novo.EE, "ARC": novo.ARC
+            })
+            return jsonify(body), 201
 
         except Exception as e:
             db.session.rollback()
             logger.exception("Erro ao criar levantamento")
+            # DEVOLVE a msg real do erro para aparecer no Android
             return {"error": str(e)}, 500
